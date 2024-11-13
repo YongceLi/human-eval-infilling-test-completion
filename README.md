@@ -53,6 +53,18 @@ samples = [
 write_jsonl("samples.jsonl", samples)
 ```
 
+To evaluate the benchmark on ChatGPT-4o-mini, run
+```
+$ export OPENAI_
+API_KEY=[Your OpenAI API key]
+$ python testOpenAPI.py --benchmark [single-span|multi-span|random-span|random-span-light]
+```
+
+To see more options, run
+```
+$ python testOpenAPI.py --help
+```
+
 To evaluate the samples, run
 ```
 $ evaluate_infilling_functional_correctness samples.jsonl --benchmark_name=single-line
