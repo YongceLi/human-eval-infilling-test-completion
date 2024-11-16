@@ -18,6 +18,21 @@ def construct_few_shot(prefix, suffix, solution):
 def construct_prompt(prefix, suffix):
     return f"Prefix:\n<code>{prefix}</code>\n\nSuffix:\n<code>{suffix}</code>\n\nMissing Code:\n"
 
+def remove_overlap(prefix, middle, suffix):
+    # Remove overlap with prefix
+    for i in range(len(middle)):
+        if middle[:i+1] == prefix[-(i+1):]:
+            middle = middle[i+1:]
+            break
+    
+    # Remove overlap with suffix
+    for i in range(len(middle)):
+        if middle[-(i+1):] == suffix[:i+1]:
+            middle = middle[:-(i+1)]
+            break
+    
+    return middle
+
 def generate_one_completion(prefix, suffix, system_prompt = "", few_shot_examples = ""):
     prompt = few_shot_examples + construct_prompt(prefix, suffix)
     response = client.chat.completions.create(
@@ -33,8 +48,10 @@ def generate_one_completion(prefix, suffix, system_prompt = "", few_shot_example
             }
         ]
     )
-    return response.choices[0].message.content.replace("```python\n", "").replace("```", "")\
+    generated_answer = response.choices[0].message.content.replace("```python\n", "").replace("```", "")\
         .replace("<code>", "").replace("</code>", "")
+    generated_answer = remove_overlap(prefix, generated_answer, suffix)
+    return generated_answer
 
 def main(args):
     benchmark_name = args.benchmark
